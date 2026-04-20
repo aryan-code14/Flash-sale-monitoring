@@ -220,6 +220,5 @@ streamlit run dashboard/app.py
 
 ## Academic Context
 
-> Data Engineering Project
-> Bachelor of Technology — Information Technology
-> KIIT Deemed to be University · 2025–2026
+> Aryan Marodia | Roll No: 2306387 | Course: Data Engineering 2025–2026 | KIIT University
+
