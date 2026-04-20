@@ -91,48 +91,6 @@ Web App / Order Events
 
 ---
 
-## 📸 Dashboard Preview
-
-### 🔹 1. Main Dashboard Overview
-![Main Dashboard](assets/1_dashboard_main.png)
-
----
-
-### 🔹 2. KPI & Alerts Section
-![KPI Section](assets/2_kpi_section.png)
-
----
-
-### 🔹 3. Sales Velocity (Revenue per Minute)
-![Sales Velocity](assets/3_sales_velocity.png)
-
----
-
-### 🔹 4. Revenue & Order Analytics
-![Bar Charts](assets/4_bar_charts.png)
-
----
-
-### 🔹 5. Efficiency Scatter Plot
-![Scatter Plot](assets/5_scatter_plot.png)
-
----
-
-### 🔹 6. AI Insights Panel
-![AI Insights](assets/6_ai_insights.png)
-
----
-
-### 🔹 7. Revenue Heatmap
-![Heatmap](assets/7_heatmap.png)
-
----
-
-### 🔹 8. Event Notification Center
-![Notifications](assets/8_notifications.png)
-
-
----
 
 ## Performance & Assumptions
 
@@ -185,14 +143,48 @@ cd Flash-sale-monitoring
 # Install dependencies
 pip install -r requirements.txt
 
-# Start streaming job
-python pyspark_streaming.py
+## 🚀 How to Run the Project
 
-# Run ETL orchestrator
+### 1. Start Apache Kafka (KRaft Mode)
+
+Open a terminal, navigate to your Kafka installation directory, and format the storage (run once):
+
+```bash
+.\bin\windows\kafka-storage.bat format -t <YOUR_UUID> -c .\config\server.properties --standalone
+```
+
+Start the Kafka Server:
+
+```bash
+.\bin\windows\kafka-server-start.bat .\config\server.properties
+```
+
+### 2. Launch the Pipeline
+
+Open 4 separate terminal windows in your project directory and execute the following commands in order:
+
+**Terminal 1 — Data Ingestion:**
+
+```bash
+python producer.py
+```
+
+**Terminal 2 — Stream Processing:**
+
+```bash
+python processor.py
+```
+
+**Terminal 3 — Automated ETL Orchestrator:**
+
+```bash
 python orchestrator.py
+```
 
-# Launch dashboard
-streamlit run dashboard/app.py
+**Terminal 4 — Executive Dashboard:**
+
+```bash
+streamlit run app.py
 ```
 
 ---
