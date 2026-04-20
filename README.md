@@ -1,55 +1,173 @@
 # FlashPulse — Real-Time Flash Sale Monitoring System
 
-> Task 80 · Bachelor of Technology · Information Technology · Data Engineering
-> KIIT Deemed to be University · Academic Session 2025–2026
+## Overview
+FlashPulse is a real-time flash sale monitoring system using Kafka, PySpark, and Streamlit to process high-volume e-commerce transactions and provide live business insights.
 
+
+---
 
 ## About
 
---FlashPulse-- is an enterprise-grade, event-driven Big Data streaming pipeline built to handle the extreme technical pressures of e-commerce flash sales. It ingests thousands of concurrent order events per secondand also validates and secures them in real time environment and delivers live business intelligence to an executive Streamlit dashboard which is fully automated, zero manual intervention is allowed.
+**FlashPulse** is a real-time data engineering pipeline designed to simulate and monitor high-traffic e-commerce flash sales.
 
-The system is built on the Medallion Data Architecture (Bronze → Silver → Gold), replacing direct database writes with the fault-tolerant Kafka event stream — solving the bottleneck, lock, and crash problems that exist in the traditional monolithic systems that face during high-traffic events.
+During flash sale events, thousands of users attempt to place orders simultaneously, often causing database bottlenecks, slow response times, and system failures. FlashPulse addresses this challenge using an event-driven architecture that decouples data ingestion from processing and storage.
 
-When a flash sale begins, thousands of users simultaneously browse inventory, add items to cart, and attempt checkout at the exact same millisecond. Traditional monolithic systems relying on MySQL or PostgreSQL immediately create table locks, server timeouts, and crashed web pages — resulting in millions of dollars in lost revenue. FlashPulse was designed specifically to eliminate this problem at every layer of the stack used here.
+The system follows the **Medallion Data Architecture** (Bronze → Silver → Gold) to ensure scalable, structured, and reliable data flow.
 
+---
 
-## The Problem It Solves
+## Problem Statement
 
-Standard e-commerce infrastructure breaks under flash sale load for three core reasons:
+Traditional e-commerce systems face major issues during flash sales:
 
-**1. Database Bottleneck** — Direct transactional writes to a relational database cause table locks and severe slowdowns when thousands of concurrent users hit the system at once.
+- **Database Bottlenecks** — Direct writes to relational databases cause locking and performance degradation under heavy load
+- **Lack of Real-Time Insights** — Batch processing delays decision-making
+- **Fraud Risk** — High traffic increases the chances of fraudulent transactions
 
-**2. No Real-Time Analytics** — Standard analytical processing runs on End-of-Day batch jobs. By the time reports are generated, the sale is already over — leaving zero opportunity to adjust pricing, inventory, or marketing strategy mid-sale.
+FlashPulse is designed to mitigate these challenges using streaming and distributed processing.
 
-**3. Fraud Vulnerability** — High-traffic events attract automated botnets that push through large fraudulent transactions, contaminating business metrics and skewing analytics.
-
-FlashPulse solves all three simultaneously through its layered streaming architecture.
-
+---
 
 ## Architecture
 
+```
 Web App / Order Events
          ↓
-    Apache Kafka          ←  Bronze Layer  (Ingestion)
+    Apache Kafka                 ←  Bronze Layer  (Ingestion)
          ↓
-  PySpark Streaming       ←  Silver Layer  (Validation & Fraud Detection)
+  PySpark Structured Streaming   ←  Silver Layer  (Validation & Filtering)
          ↓
-  Python Batch ETL        ←  Gold Layer    (Aggregation every 60s)
+    Python Batch ETL             ←  Gold Layer    (Aggregation)
          ↓
-  Streamlit Dashboard     ←  BI Layer      (Executive Dashboard)
+    Streamlit Dashboard          ←  Visualization Layer
+```
 
-### Bronze Layer — Apache Kafka
-Instead of writing transactions directly to a database, the web application publishes all incoming order events as JSON payloads to a Kafka message broker. Kafka acts as a highly scalable, fault-tolerant shock absorber — appending records to an immutable ledger called a topic. Even at ten thousand orders per second, Kafka safely buffers the data with zero data loss regardless of downstream processing speed.
+---
 
-### Silver Layer — PySpark Structured Streaming
-A continuously running PySpark Structured Streaming job consumes the Kafka topic and acts as the system's active security firewall and data validator. Every single transaction is parsed and evaluated in real time. Normal transactions are appended to the primary Data Lake. Orders exceeding the $2,500 fraud threshold are instantly intercepted and routed to an isolated `fraud_alerts/` storage path — ensuring fraudulent anomalies never contaminate downstream analytics.
+## Tech Stack
 
-### Gold Layer — Python Batch ETL
-A custom Python orchestrator executes an automated Batch ETL process at 60-second intervals. It reads the validated Silver Data Lake, extracts timestamp data down to the minute, and performs complex mathematical aggregations. The resulting business-ready data is stored as lightweight CSV files in the Gold Data Warehouse, optimised for instantaneous read access by the Streamlit dashboard.
+| Layer | Technology | Role |
+|---|---|---|
+| Ingestion | Apache Kafka | Event streaming & buffering |
+| Processing | Apache Spark / PySpark | Real-time data processing |
+| Orchestration | Python | Automated ETL pipeline |
+| Dashboard | Streamlit | Data visualization |
+| Storage | MySQL / PostgreSQL | Data storage |
+| ML (Optional) | Scikit-Learn | Fraud detection (extendable) |
+| Data Format | JSON, CSV | Data exchange |
+
+---
+
+## Data Pipeline Layers
+
+### Bronze Layer — Data Ingestion
+
+- Order events are produced as JSON messages
+- Events are ingested into Kafka topics
+- Ensures high-throughput and fault-tolerant data buffering
+
+### Silver Layer — Data Processing
+
+- PySpark Structured Streaming consumes Kafka data
+- Performs data validation, filtering, and rule-based fraud detection
+- Suspicious transactions are stored separately in `fraud_alerts/`
+
+### Gold Layer — Data Aggregation
+
+- Python-based ETL runs every 60 seconds
+- Performs aggregations such as revenue per minute, order count, and product-level metrics
+- Outputs processed data for analytics
+
+---
+
+## Features
+
+- Real-time event streaming pipeline
+- Live dashboard for monitoring sales performance
+- Rule-based fraud detection (extensible to ML models)
+- Automated ETL pipeline running every 60 seconds
+- Sales velocity tracking and trend analysis
+- Event logging for system monitoring
+
+---
+
+## 📸 Dashboard Preview
+
+### 🔹 1. Main Dashboard Overview
+![Main Dashboard](assets/1_dashboard_main.png)
+
+---
+
+### 🔹 2. KPI & Alerts Section
+![KPI Section](assets/2_kpi_section.png)
+
+---
+
+### 🔹 3. Sales Velocity (Revenue per Minute)
+![Sales Velocity](assets/3_sales_velocity.png)
+
+---
+
+### 🔹 4. Revenue & Order Analytics
+![Bar Charts](assets/4_bar_charts.png)
+
+---
+
+### 🔹 5. Efficiency Scatter Plot
+![Scatter Plot](assets/5_scatter_plot.png)
+
+---
+
+### 🔹 6. AI Insights Panel
+![AI Insights](assets/6_ai_insights.png)
+
+---
+
+### 🔹 7. Revenue Heatmap
+![Heatmap](assets/7_heatmap.png)
+
+---
+
+### 🔹 8. Event Notification Center
+![Notifications](assets/8_notifications.png)
 
 
-## Getting Started
-## Prerequisites
+---
+
+## Performance & Assumptions
+
+- Simulated high-throughput event streaming system
+- Batch processing interval: 60 seconds
+- Near real-time dashboard updates
+- Fraud detection based on configurable thresholds
+- Designed for scalability (can be extended to cloud environments)
+
+---
+
+## Project Structure
+
+```
+flashpulse/
+├── orchestrator.py          # Controls ETL execution loop
+├── batch_etl.py             # Gold layer aggregation logic
+├── kafka_producer.py        # Simulates order events
+├── pyspark_streaming.py     # Real-time processing layer
+├── dashboard/
+│   └── app.py               # Streamlit dashboard
+├── data_lake/
+│   ├── silver/              # Clean processed data
+│   └── fraud_alerts/        # Suspicious transactions
+├── data_warehouse/
+│   └── gold/                # Aggregated output
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Installation & Setup
+
+### Prerequisites
 
 - Python 3.10
 - Apache Kafka
@@ -57,132 +175,51 @@ A custom Python orchestrator executes an automated Batch ETL process at 60-secon
 - Streamlit
 - MySQL or PostgreSQL
 
-### Installation
+### Steps
 
-bash
-# Clone the repository
+```bash
+# Clone repository
 git clone https://github.com/aryan-code14/Flash-sale-monitoring.git
 cd Flash-sale-monitoring
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Start the PySpark streaming job
+# Start streaming job
 python pyspark_streaming.py
 
-# In a separate terminal, start the orchestrator
+# Run ETL orchestrator
 python orchestrator.py
 
-# In another terminal, launch the dashboard
+# Launch dashboard
 streamlit run dashboard/app.py
+```
 
+---
 
-## Tech Stack
+## Future Improvements
 
-| Layer | Technology | Role |
-|---|---|---|
-| Ingestion | Apache Kafka | Event streaming & fault-tolerant buffering |
-| Processing | Apache Spark / PySpark | Real-time structured streaming & fraud detection |
-| Orchestration | Python | Automated 60-second Batch ETL loop |
-| Dashboard | Streamlit | Executive business intelligence UI |
-| Storage | MySQL, PostgreSQL | Relational data management |
-| ML / Security | Scikit-Learn | Anomaly detection & fraud flagging |
-| Big Data | Databricks | Scalable distributed data processing |
-| Data Format | JSON, CSV | Event payloads & warehouse output |
+- [ ] Integrate machine learning-based fraud detection
+- [ ] Deploy pipeline on cloud (AWS / GCP)
+- [ ] Use Parquet / Delta Lake instead of CSV for scalability
+- [ ] Add real-time WebSocket-based dashboard updates
+- [ ] Implement role-based access control
+- [ ] Containerization using Docker
 
+---
 
+## Key Learnings
 
-## Project Structure
+- Event-driven system design
+- Real-time data streaming concepts
+- Distributed data processing with Spark
+- Designing scalable data pipelines
+- Building interactive dashboards for analytics
 
-flashpulse/
-├── orchestrator.py          # Core automation engine — 60s ETL loop
-├── batch_etl.py             # Gold layer transformation job
-├── kafka_producer.py        # Order event simulator / producer
-├── pyspark_streaming.py     # Silver layer — validation & fraud detection
-├── dashboard/
-│   └── app.py               # Streamlit executive dashboard
-├── data_lake/
-│   ├── silver/              # Validated clean order records
-│   └── fraud_alerts/        # Intercepted suspicious transactions
-├── data_warehouse/
-│   └── gold/                # Aggregated CSV files for dashboard
-├── requirements.txt
-└── README.md
-
-
-
-## Features
-
-- **Real-Time Fraud Detection** — PySpark flags and isolates any order above the $2,500 threshold into a separate `fraud_alerts/` path at the Silver layer. Fraudulent anomalies are completely prevented from reaching downstream analytics.
-
-- **Sales Velocity Monitoring** — The Sales Velocity line chart tracks revenue intensity strictly on a minute-by-minute basis. A sudden drop signals a potential front-end crash to IT teams; a sudden spike confirms the success of a marketing push to the marketing team.
-
-- **AI Insights Engine** — Automatically scans the Gold Data Warehouse and generates plain-English actionable directives. Calculates a Velocity Insight — taking current orders-per-minute and projecting total hourly volume — allowing supply chain managers to call in extra staff ahead of time.
-
-- **Revenue Intensity Heatmap** — Dynamically adjusts shading intensity based on each product's percentage share of total revenue. Dominant products command darker, more prominent visual space — no need to read raw numbers.
-
-- **Efficiency Scatter Plot** — Plots total revenue against total orders per product category. Data points high on the Y-axis but low on the X-axis represent high-margin sales; points far right but low on Y-axis flag products requiring massive logistical effort for little financial return.
-
-- **Event Notification Center** — Every time the orchestrator runs its 60-second batch job, it calculates the percentage delta — whether revenue increased or decreased compared to the previous minute — and logs it directly to the dashboard, providing an undeniable audit trail of system health.
-
-- **Zero-Touch Automation** — The Python orchestrator entirely eliminates the need for manual cron job configuration. The pipeline runs continuously, self-monitors, and self-reports.
-
-
-## Core Orchestrator
-
-python
-# orchestrator.py — Core Automation Engine
-import time, subprocess, glob
-from datetime import datetime
-
-RUN_INTERVAL_SECONDS = 60
-
-while True:
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print(f"[{current_time}] System active. Triggering Batch ETL Job...")
-
-    result = subprocess.run(["python", "batch_etl.py"], capture_output=True)
-
-    if result.returncode == 0:
-        fraud_files = glob.glob('./data_lake/fraud_alerts/*.json')
-        if len(fraud_files) > 0:
-            print(f"SECURITY ALERT: {len(fraud_files)} Suspicious Transactions Blocked!")
-
-    time.sleep(RUN_INTERVAL_SECONDS)
-
-## Dashboard Visualizations
-
-| Figure | Visualization | Business Value |
-|---|---|---|
-| Fig 1 | Security breach banner + KPI header | Real-time threat awareness |
-| Fig 2 | Revenue ring + countdown timer + velocity gauge | Live sale pulse |
-| Fig 3 | Sales Velocity line chart | Minute-by-minute momentum tracking |
-| Fig 4 | Revenue vs Orders bar charts | Fulfillment logistics planning |
-| Fig 5 | AI Insights panel | Auto-generated actionable directives |
-| Fig 6 | Revenue Intensity Heatmap | Market share at a glance |
-| Fig 7 | Efficiency Scatter Plot | Margin analysis & pricing strategy |
-| Fig 8 | Event Notification Center | System health audit trail |
-
-## Why This Architecture Works
-
-Traditional dashboards display total aggregate sums — helpful, but lacking context. In a flash sale, the most critical metric is momentum. If total sales are $100,000 but velocity drops to zero, the system has likely experienced a front-end crash. FlashPulse treats the data pipeline not as a passive reporting tool but as an active operational nervous system.
-
-Understanding the balance between order volume and revenue generation is essential for fulfillment logistics. A product category might generate the highest overall revenue — such as Laptops — while a completely different category is responsible for the largest volume of physical boxes the warehouse team must package and ship — such as Smartwatches. This dual-axis insight is critical for allocating warehouse labour efficiently during the fulfillment phase of the flash sale.
-
-For a data pipeline to be trusted, it must be transparent. The Event Notification Center provides continuous assurance that backend systems are actively processing data — not displaying a frozen screen.
-
-## Future Roadmap
-
-- [ ] Migrate Data Lake storage to Amazon S3 / Google Cloud Storage
-- [ ] Move Kafka cluster to AWS MSK managed service
-- [ ] Scale processing layer with AWS EMR / Databricks
-- [ ] Replace hardcoded fraud threshold with a Scikit-Learn ML model that learns baseline customer behaviour and dynamically flags anomalous transactions based on multi-dimensional feature analysis
-- [ ] Add WebSocket support for true sub-second dashboard refresh
-- [ ] Implement role-based access control for the executive dashboard
-- [ ] Build a mobile-responsive version of the monitoring interface
+---
 
 ## Academic Context
 
-> Task 80 — Data Engineering Project
-> Bachelor of Technology · Information Technology
-> KIIT Deemed to be University, Bhubaneswar · 2025–2026
+> Data Engineering Project
+> Bachelor of Technology — Information Technology
+> KIIT Deemed to be University · 2025–2026
