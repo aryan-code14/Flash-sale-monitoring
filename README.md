@@ -213,6 +213,6 @@ streamlit run app.py
 ## Academic Context
 
 
-> Aryan Marodia | Roll No: 2306387 | Course: Data Engineering 2025–2026 | KIIT University
+> Aryan Marodia | Course: Data Engineering 2025–2026 | KIIT University
 
 
